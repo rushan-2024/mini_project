@@ -1,199 +1,131 @@
-# 🔥 Web Firewall Detection (Python WAF)
+# 🔥 Web Application Firewall - Intrusion Prevention System (WAF IPS)
 
-A Python-based smart Web Application Firewall (WAF) that detects, blocks, and logs malicious HTTP traffic, including SQL injection attacks, using rule-based filtering and proxy analysis.
+A complete Python-based **Web Application Firewall (WAF)** with a full **Intrusion Prevention System**, dashboard, admin panel, simulator, and automated launcher for demonstration.
 
 ---
 
 ## 🚀 Features
 
-* 🛡️ Rule-based filtering of HTTP requests
-* 🔍 SQL injection detection
-* 📄 Attack logging (`attacks.log`)
-* ⚡ Rate limiting (basic DoS protection)
+* 🛡️ Rule-based HTTP request filtering
+* 🔍 SQL Injection detection & blocking
+* 📄 Attack logging system (`attacks.log`)
+* ⚡ Rate limiting (DoS protection)
 * 🌐 Proxy-based traffic monitoring
+* 📊 Live attack dashboard
+* 📑 PDF report generation
+* 🔐 Admin panel with controls
+* 🧪 Attack simulator + comparison mode
+* 🎯 One-click execution using `start_demo.bat`
 
 ---
 
 ## 🧠 Architecture
 
-Client → WAF Proxy (Port 8080) → Backend Server (Port 5001)
+Client → WAF Proxy (8080) → Backend Server (5001)
 
-* Requests first pass through the firewall
-* Firewall checks for malicious patterns
-* Safe requests are forwarded to backend
-* Malicious requests are blocked and logged
+Additional Services:
+- Dashboard (5002)
+- Report Server (5003)
+- Admin Panel (5004)
+- Simulator & Stats (5005)
 
 ---
 
 ## 📁 Project Structure
+backend.py # Vulnerable backend server
+proxy.py # WAF proxy server
+rules_engine.py # Attack detection logic
+logger.py # Attack logging
+rate_limiter.py # Rate limiting
 
-```
-backend.py         # Vulnerable backend server
-proxy.py           # WAF proxy server
-rules_engine.py    # Attack detection logic
-logger.py          # Logs detected attacks
-rate_limiter.py    # Rate limiting logic
-test.db            # SQLite database
+dashboard.py # Live attack dashboard
+report.py # PDF report generator
+admin.py # Admin control panel
+simulate.py # Attack simulator & comparison
+
+setupdb.py # Database setup
+start_demo.bat # 🔥 Master launcher (RUN THIS)
+
+blocked_ips.json
+attacks.log
+test.db
 requirements.txt
-```
-
 ---
 
 ## ⚙️ Installation
 
-### 1. Clone repository
-
+### 1. Clone Repository
 ```bash
-git clone https://github.com/anujatappeta/web_firewall_detection.git
-cd web_firewall_detection
-```
+git clone https://github.com/rushan-2024/mini_project.git
+cd mini_project
+2. Install Dependencies
+pip install flask requests fpdf2
+▶️ Run the Project (Recommended)
+🔥 One-Click Start
+start_demo.bat
 
----
+✅ This will automatically:
 
-### 2. Install dependencies
+Install dependencies
+Setup database
+Start all 6 servers
+Open all pages in browser
+🌐 Available Services
+Service	URL
+Home Page	http://localhost:5001
 
-```bash
-pip install -r requirements.txt
-```
+WAF Proxy Login	http://localhost:8080/login
 
----
+Dashboard	http://localhost:5002
 
-### 3. Setup database
+Report Generator	http://localhost:5003
 
-```bash
-python setupdb.py
-```
+Admin Panel	http://localhost:5004
 
----
+Simulator	http://localhost:5005
 
-## ▶️ Running the Project
+Comparison	http://localhost:5005/compare
 
-### 🔹 Step 1: Start backend server
+Project Stats	http://localhost:5005/stats
 
-```bash
-python backend.py
-```
+🔐 Admin Password: admin123
 
-Runs on: `http://localhost:5001`
-
----
-
-### 🔹 Step 2: Start firewall proxy
-
-```bash
-python proxy.py
-```
-
-Runs on: `http://localhost:8080`
-
----
-
-## 🔒 Detected Attacks
-
-The firewall currently detects and blocks:
-
-* ✔ Basic SQL Injection
-
-  * `OR 1=1`, `AND 1=1`, `UNION SELECT`
-
-* ✔ SQL Comment Injection
-
-  * `--`
-
-* ✔ Dangerous SQL Commands
-
-  * `DROP TABLE`, `INSERT INTO`, `UPDATE ... SET`
-
-* ✔ Time-based SQL Injection
-
-  * `SLEEP()`
-
-* ✔ Basic DoS Attacks
-
-  * Excessive requests from same IP
-
----
-
-## 🧪 Testing Attacks (IMPORTANT)
-
-To test SQL injection attacks, install **sqlmap**:
-
-### 🔹 Install sqlmap
-
-```bash
-git clone https://github.com/sqlmapproject/sqlmap.git
-cd sqlmap
-```
-
----
-
-### 🔹 Run attack test
-
-```bash
-python sqlmap.py -u "http://localhost:8080/login?user=1"
-```
-
----
-
-### 🔥 Example Attack Payload
-
-```http
+🧪 Testing Attacks
+Example SQL Injection
 /login?user=1 OR 1=1--
-```
+Expected Behavior
+❌ Blocked (403)
+📄 Logged in attacks.log
+📊 Visible in dashboard
+🔒 Detected Attacks
+✔ SQL Injection (Basic & Time-based)
+✔ SQL Comments (--)
+✔ Dangerous Queries (DROP, INSERT, UPDATE)
+✔ DoS (Rate limiting)
+📊 Presentation Flow (IMPORTANT)
+Home Page → http://localhost:5001
+Project Stats → http://localhost:5005/stats
+Simulator → http://localhost:5005
+Compare WAF → http://localhost:5005/compare
+Dashboard → http://localhost:5002
+PDF Report → http://localhost:5003
+Admin Panel → http://localhost:5004
+⚠️ Limitations
+Cannot detect advanced obfuscated attacks
+Limited protection against XSS/CSRF
+Basic rate limiting
+🚀 Future Improvements
+AI/ML-based attack detection
+Advanced payload decoding
+XSS & CSRF protection
+IP banning & firewall rules
+Cloud deployment
+🛠 Tech Stack
+Python
+Flask
+Requests
+SQLite
+FPDF (PDF Reports)
+🤝 Contributing
 
----
-
-### ✅ Expected Behavior
-
-* Malicious request → ❌ Blocked (403)
-* Attack logged → `attacks.log`
-
----
-
-## 📄 Logging Example
-
-```json
-{
-  "time": "Mon Mar 17",
-  "ip": "127.0.0.1",
-  "payload": "/login?user=1 OR 1=1--"
-}
-```
-
----
-
-## ⚠️ Limitations
-
-* Does not yet detect encoded or obfuscated payloads
-* Cannot handle advanced evasion techniques
-
----
-
-## 🚀 Future Improvements
-
-* Detect advanced SQL injection evasion techniques used by sqlmap tamper scripts (encoding, obfuscation, payload mutation)
-* Machine learning-based anomaly detection
-* Web dashboard for monitoring logs
-* Advanced rate limiting and IP blocking
-* Support for XSS, CSRF, and command injection
-
----
-
-## 🛠 Tech Stack
-
-* Python
-* Flask
-* Requests
-* SQLite
-
----
-
-## 🤝 Contributing
-
-Feel free to fork the repository and submit pull requests.
-
----
-
-## 📜 License
-
-MIT License
+Feel free to fork and contribute!
