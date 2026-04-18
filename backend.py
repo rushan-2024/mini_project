@@ -263,136 +263,150 @@ def nav(active=''):
 def home():
     logs = load_logs()
     blocked, _ = load_blocked()
-    return render_template_string("""<!DOCTYPE html><html lang="en"><head>
+    HOME_HTML = """<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>[IPS] :: Intrusion Prevention System</title>""" + SHARED + """
 <style>
-.hero{position:relative;z-index:1;min-height:92vh;display:flex;flex-direction:column;
-  justify-content:center;align-items:center;text-align:center;padding:100px 40px 60px;}
-.terminal-box{margin:0 auto 36px;max-width:440px;text-align:left;border:1px solid var(--border);
-  border-radius:4px;overflow:hidden;opacity:0;animation:fadeUp 0.5s ease 0.2s forwards;}
-.term-bar{background:var(--bg3);padding:7px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
-.term-dot{width:9px;height:9px;border-radius:50%;}
-.term-title{font-size:9px;color:var(--g3);letter-spacing:2px;flex:1;text-align:center;}
-.term-body{padding:14px 18px;font-size:10px;line-height:2.1;}
-.term-prompt{color:var(--g2);}
-.term-out{color:var(--dim);padding-left:14px;}
-.term-ok{color:var(--g);}
-.term-warn{color:var(--amber);}
-.term-cursor{display:inline-block;width:7px;height:12px;background:var(--g);animation:blink 1s step-end infinite;vertical-align:text-bottom;}
-.hero-title{font-family:'Orbitron',monospace;font-size:clamp(32px,6vw,80px);font-weight:900;line-height:1;
-  text-shadow:0 0 30px rgba(0,255,65,0.5),0 0 60px rgba(0,255,65,0.2);
-  animation:glitch 5s infinite, fadeUp 0.7s ease 0.5s both;margin-bottom:6px;}
-.hero-sub{font-family:'Orbitron',monospace;font-size:clamp(11px,1.8vw,18px);font-weight:400;
-  color:var(--dim);letter-spacing:7px;animation:fadeUp 0.7s ease 0.7s both;margin-bottom:20px;}
-.hero-desc{font-size:11px;color:var(--dim);line-height:2;max-width:480px;margin:0 auto 40px;animation:fadeUp 0.7s ease 0.9s both;}
-.cta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.7s ease 1.1s both;}
+#globe-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;}
+.scanlines{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:1;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.22) 2px,rgba(0,0,0,0.22) 4px);}
+.overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(2,6,2,0.42);z-index:2;pointer-events:none;}
 
-/* Quick nav cards */
-.quick-nav{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+.hero{position:relative;z-index:10;min-height:92vh;display:flex;align-items:center;padding:100px 7% 60px;gap:40px;}
+.hero-left{flex:1;max-width:600px;}
+.hero-right{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+
+.sys-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,255,65,0.4);
+  padding:7px 16px;border-radius:3px;font-size:10px;color:var(--g);letter-spacing:2px;
+  margin-bottom:24px;background:rgba(0,255,65,0.07);backdrop-filter:blur(6px);}
+.sys-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--g);animation:blink 1.5s ease-in-out infinite;}
+
+.hero-main{font-family:"Orbitron",monospace;font-size:clamp(38px,6vw,80px);font-weight:900;line-height:1.05;
+  text-shadow:0 0 30px rgba(0,255,65,0.6),0 0 60px rgba(0,255,65,0.2);
+  animation:glitch 5s infinite,fadeUp 0.7s ease 0.2s both;margin-bottom:12px;}
+.hero-sub-title{font-family:"Orbitron",monospace;font-size:clamp(13px,2vw,22px);font-weight:400;
+  color:var(--dim);letter-spacing:5px;animation:fadeUp 0.7s ease 0.4s both;margin-bottom:6px;}
+.hero-tagline{font-family:"Orbitron",monospace;font-size:clamp(9px,1.1vw,13px);
+  color:rgba(0,255,65,0.35);letter-spacing:3px;animation:fadeUp 0.7s ease 0.5s both;margin-bottom:26px;}
+.hero-desc{font-size:12px;color:var(--dim);line-height:1.9;max-width:480px;margin-bottom:32px;animation:fadeUp 0.7s ease 0.6s both;}
+.cta-row{display:flex;gap:10px;flex-wrap:wrap;animation:fadeUp 0.7s ease 0.8s both;margin-bottom:32px;}
+
+.proj-stats{opacity:0;animation:fadeUp 0.7s ease 1s forwards;}
+.proj-stats-title{font-size:8px;color:var(--g3);letter-spacing:3px;margin-bottom:12px;text-transform:uppercase;}
+.proj-stat-items{display:flex;gap:28px;padding-top:12px;border-top:1px solid rgba(0,255,65,0.12);}
+.ps-item{display:flex;flex-direction:column;gap:4px;}
+.ps-val{font-family:"Orbitron",monospace;font-size:26px;font-weight:900;color:var(--g);text-shadow:0 0 12px rgba(0,255,65,0.5);line-height:1;}
+.ps-val.red{color:var(--red);text-shadow:0 0 12px rgba(255,0,64,0.5);}
+.ps-val.amber{color:var(--amber);text-shadow:0 0 12px rgba(255,170,0,0.5);}
+.ps-val.cyan{color:var(--cyan);text-shadow:0 0 12px rgba(0,255,255,0.5);}
+.ps-label{font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;}
+
+.radar-wrap{position:relative;width:280px;height:280px;opacity:0;animation:fadeUp 0.7s ease 0.9s forwards;}
+.radar{width:280px;height:280px;border-radius:50%;border:2px solid rgba(0,255,65,0.55);
+  background:radial-gradient(circle,rgba(0,255,65,0.09) 0%,transparent 70%);
+  position:relative;overflow:hidden;
+  box-shadow:0 0 50px rgba(0,255,65,0.25),inset 0 0 50px rgba(0,255,65,0.09);}
+.radar::before,.radar::after{content:"";position:absolute;border:1px solid rgba(0,255,65,0.18);
+  border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
+.radar::before{width:66%;height:66%;}
+.radar::after{width:33%;height:33%;}
+.r-cross-h{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(0,255,65,0.14);transform:translateY(-50%);}
+.r-cross-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(0,255,65,0.14);transform:translateX(-50%);}
+.sweep{position:absolute;top:50%;left:50%;width:50%;height:50%;
+  background:conic-gradient(from 0deg,transparent 70%,rgba(0,255,65,0.75) 100%);
+  transform-origin:0% 0%;animation:sweep-anim 3s linear infinite;}
+@keyframes sweep-anim{to{transform:rotate(360deg)}}
+.blip{position:absolute;border-radius:50%;opacity:0;animation:blip-anim 4s infinite;}
+@keyframes blip-anim{0%{opacity:0;transform:scale(0.5)}10%{opacity:1;transform:scale(1.5)}30%{opacity:0;transform:scale(1)}100%{opacity:0}}
+.radar-label{text-align:center;margin-top:14px;font-family:"Share Tech Mono",monospace;font-size:9px;color:var(--g3);letter-spacing:3px;}
+
+.quick-nav{position:relative;z-index:10;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
   background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
-.qcard{background:var(--bg2);padding:24px 20px;text-decoration:none;transition:background 0.2s;border:none;}
-.qcard:hover{background:var(--panel);}
-.qcard-icon{font-size:22px;margin-bottom:10px;}
-.qcard-title{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:var(--g);letter-spacing:2px;margin-bottom:4px;}
+.qcard{background:rgba(7,13,7,0.9);backdrop-filter:blur(10px);padding:22px 18px;text-decoration:none;transition:background 0.2s;border:none;}
+.qcard:hover{background:rgba(12,22,12,0.95);}
+.qcard-icon{font-size:20px;margin-bottom:8px;}
+.qcard-title{font-family:"Orbitron",monospace;font-size:10px;font-weight:700;color:var(--g);letter-spacing:2px;margin-bottom:3px;}
 .qcard-desc{font-size:9px;color:var(--dim);line-height:1.5;}
-.qcard-link{font-size:8px;color:var(--g3);letter-spacing:1px;margin-top:8px;}
+.qcard-link{font-size:8px;color:var(--g3);letter-spacing:1px;margin-top:6px;}
 
+.page-body{position:relative;z-index:10;background:var(--bg);}
 .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
 .feat-card{background:var(--panel);padding:26px;transition:background 0.2s;}
 .feat-card:hover{background:var(--bg3);}
 .feat-icon{font-size:20px;margin-bottom:12px;}
-.feat-name{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--g);margin-bottom:8px;letter-spacing:2px;}
+.feat-name{font-family:"Orbitron",monospace;font-size:11px;font-weight:700;color:var(--g);margin-bottom:8px;letter-spacing:2px;}
 .feat-desc{font-size:10px;color:var(--dim);line-height:1.7;}
 .feat-tag{display:inline-block;margin-top:12px;font-size:7px;letter-spacing:2px;padding:3px 9px;border:1px solid var(--border2);color:var(--g3);}
-
-.arch{text-align:center;padding:50px 40px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg2);position:relative;z-index:1;}
+.arch{text-align:center;padding:50px 40px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg2);}
 .arch-flow{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border:1px solid var(--border);border-radius:4px;background:var(--bg3);}
 .arch-node{padding:9px 16px;border-radius:2px;font-size:10px;letter-spacing:2px;border:1px solid;}
 .arch-node.c{border-color:var(--border2);color:var(--dim);}
 .arch-node.w{border-color:var(--g2);color:var(--g);text-shadow:0 0 8px rgba(0,255,65,0.5);box-shadow:0 0 14px rgba(0,255,65,0.12);}
 </style>
-</head><body>""" + nav('/') + """
+</head><body>
+<div id="globe-container"></div>
+<div class="scanlines"></div>
+<div class="overlay"></div>
+""" + nav('/') + """
 <section class="hero">
-  <div class="terminal-box">
-    <div class="term-bar">
-      <div class="term-dot" style="background:#ff5f57"></div>
-      <div class="term-dot" style="background:#febc2e"></div>
-      <div class="term-dot" style="background:#28c840"></div>
-      <div class="term-title">root@waf-system:~</div>
+  <div class="hero-left">
+    <div class="sys-badge"><div class="sys-badge-dot"></div>SYSTEM ACTIVE: MONITORING</div>
+    <div class="hero-main">INTRUSION<br>PREVENTION<br>SYSTEM</div>
+    <div class="hero-sub-title">Secure Your Network</div>
+    <div class="hero-tagline">Python WAF &middot; Real-time Detection &middot; Zero Compromise</div>
+    <p class="hero-desc">Next-generation Web Application Firewall detecting and blocking SQL injection, XSS, command injection, path traversal, brute force and more in real time.</p>
+    <div class="cta-row">
+      <a href="/login" class="btn btn-g">[ ATTACK DEMO ]</a>
+      <a href="/dashboard" class="btn btn-c">[ DASHBOARD ]</a>
+      <a href="/simulate" class="btn btn-r">[ SIMULATOR ]</a>
+      <a href="/report" class="btn btn-a">[ REPORT ]</a>
     </div>
-    <div class="term-body">
-      <div><span class="term-prompt">root@waf:~$ </span><span style="color:var(--g)">./ips --init</span></div>
-      <div class="term-out"><span class="term-ok">[OK]</span> Rule engine loaded — 9 attack types</div>
-      <div class="term-out"><span class="term-ok">[OK]</span> 90+ detection patterns active</div>
-      <div class="term-out"><span class="term-ok">[OK]</span> Honeypot traps: 20+ paths</div>
-      <div class="term-out"><span class="term-ok">[OK]</span> Brute force detector: ON</div>
-      <div class="term-out"><span class="term-ok">[OK]</span> GeoIP tracking: ACTIVE</div>
-      <div class="term-out"><span class="term-warn">[!]</span> Attacks blocked: <span style="color:var(--g)">{{ total_attacks }}</span> | IPs banned: <span style="color:var(--red)">{{ blocked_count }}</span></div>
-      <div style="margin-top:4px;"><span class="term-prompt">root@waf:~$ </span><span class="term-cursor"></span></div>
+    <div class="proj-stats">
+      <div class="proj-stats-title">::: PROJECT METRICS :::</div>
+      <div class="proj-stat-items">
+        <div class="ps-item"><div class="ps-val red" id="atk-count">__ATK__</div><div class="ps-label">Attacks Blocked</div></div>
+        <div class="ps-item"><div class="ps-val amber">__BLK__</div><div class="ps-label">IPs Banned</div></div>
+        <div class="ps-item"><div class="ps-val cyan">9+</div><div class="ps-label">Attack Types</div></div>
+        <div class="ps-item"><div class="ps-val">100%</div><div class="ps-label">Block Rate</div></div>
+      </div>
     </div>
   </div>
-  <div class="hero-title">INTRUSION</div>
-  <div class="hero-sub">Prevention System</div>
-  <p class="hero-desc">Python-based WAF intercepting, analyzing and neutralizing malicious HTTP traffic in real time.</p>
-  <div class="cta-row">
-    <a href="/login" class="btn btn-g">[ ATTACK DEMO ]</a>
-    <a href="/dashboard" class="btn btn-c">[ DASHBOARD ]</a>
-    <a href="/simulate" class="btn btn-r">[ SIMULATOR ]</a>
-    <a href="/report" class="btn btn-a">[ REPORT ]</a>
+  <div class="hero-right">
+    <div class="radar-wrap">
+      <div class="radar">
+        <div class="r-cross-h"></div><div class="r-cross-v"></div>
+        <div class="sweep"></div>
+        <div class="blip" style="width:8px;height:8px;top:22%;left:33%;background:#ff0040;box-shadow:0 0 10px #ff0040;animation-delay:0s;"></div>
+        <div class="blip" style="width:7px;height:7px;top:68%;left:78%;background:#ff0040;box-shadow:0 0 10px #ff0040;animation-delay:0.8s;"></div>
+        <div class="blip" style="width:6px;height:6px;top:42%;left:62%;background:#ffaa00;box-shadow:0 0 10px #ffaa00;animation-delay:2s;"></div>
+        <div class="blip" style="width:5px;height:5px;top:75%;left:28%;background:#ff0040;box-shadow:0 0 8px #ff0040;animation-delay:3s;"></div>
+      </div>
+      <div class="radar-label">THREAT RADAR &nbsp;&middot;&nbsp; LIVE SCAN</div>
+    </div>
   </div>
 </section>
-
-<!-- Quick Nav Cards -->
 <div class="quick-nav">
-  <a href="/simulate" class="qcard">
-    <div class="qcard-icon">&#9889;</div>
-    <div class="qcard-title">SIMULATOR</div>
-    <div class="qcard-desc">Fire real attack payloads with one click</div>
-    <div class="qcard-link">&#8594; /simulate</div>
-  </a>
-  <a href="/compare" class="qcard">
-    <div class="qcard-icon">&#9878;</div>
-    <div class="qcard-title">COMPARISON</div>
-    <div class="qcard-desc">Side-by-side: without WAF vs with WAF</div>
-    <div class="qcard-link">&#8594; /compare</div>
-  </a>
-  <a href="/stats" class="qcard">
-    <div class="qcard-icon">&#128202;</div>
-    <div class="qcard-title">PROJECT STATS</div>
-    <div class="qcard-desc">Tech stack, timeline and project overview</div>
-    <div class="qcard-link">&#8594; /stats</div>
-  </a>
-  <a href="/admin" class="qcard">
-    <div class="qcard-icon">&#128274;</div>
-    <div class="qcard-title">ADMIN PANEL</div>
-    <div class="qcard-desc">Manage blocked IPs and system settings</div>
-    <div class="qcard-link">&#8594; /admin</div>
-  </a>
+  <a href="/simulate" class="qcard"><div class="qcard-icon">&#9889;</div><div class="qcard-title">SIMULATOR</div><div class="qcard-desc">Fire real attack payloads with one click</div><div class="qcard-link">&#8594; /simulate</div></a>
+  <a href="/compare" class="qcard"><div class="qcard-icon">&#9878;</div><div class="qcard-title">COMPARISON</div><div class="qcard-desc">Side-by-side: without WAF vs with WAF</div><div class="qcard-link">&#8594; /compare</div></a>
+  <a href="/stats" class="qcard"><div class="qcard-icon">&#128202;</div><div class="qcard-title">PROJECT STATS</div><div class="qcard-desc">Tech stack, timeline and project overview</div><div class="qcard-link">&#8594; /stats</div></a>
+  <a href="/admin" class="qcard"><div class="qcard-icon">&#128274;</div><div class="qcard-title">ADMIN PANEL</div><div class="qcard-desc">Manage blocked IPs and system settings</div><div class="qcard-link">&#8594; /admin</div></a>
 </div>
-
-<!-- Stats bar -->
-<div style="position:relative;z-index:1;display:flex;justify-content:center;border-bottom:1px solid var(--border);background:var(--bg2);">
+<div class="page-body">
+<div style="display:flex;justify-content:center;border-bottom:1px solid var(--border);background:var(--bg2);">
   <div style="flex:1;max-width:180px;padding:28px 16px;text-align:center;border-right:1px solid var(--border);">
-    <div style="font-family:'Orbitron',monospace;font-size:36px;font-weight:900;color:var(--g);text-shadow:0 0 16px rgba(0,255,65,0.5);">9+</div>
-    <div style="font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;">Attack Types</div>
-  </div>
+    <div style="font-family:Orbitron,monospace;font-size:36px;font-weight:900;color:var(--g);text-shadow:0 0 16px rgba(0,255,65,0.5);">9+</div>
+    <div style="font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;">Attack Types</div></div>
   <div style="flex:1;max-width:180px;padding:28px 16px;text-align:center;border-right:1px solid var(--border);">
-    <div style="font-family:'Orbitron',monospace;font-size:36px;font-weight:900;color:var(--red);text-shadow:0 0 16px rgba(255,0,64,0.5);">{{ total_attacks }}</div>
-    <div style="font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;">Attacks Blocked</div>
-  </div>
+    <div style="font-family:Orbitron,monospace;font-size:36px;font-weight:900;color:var(--red);text-shadow:0 0 16px rgba(255,0,64,0.5);">__ATK__</div>
+    <div style="font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;">Attacks Blocked</div></div>
   <div style="flex:1;max-width:180px;padding:28px 16px;text-align:center;border-right:1px solid var(--border);">
-    <div style="font-family:'Orbitron',monospace;font-size:36px;font-weight:900;color:var(--amber);text-shadow:0 0 16px rgba(255,170,0,0.5);">{{ blocked_count }}</div>
-    <div style="font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;">IPs Blocked</div>
-  </div>
+    <div style="font-family:Orbitron,monospace;font-size:36px;font-weight:900;color:var(--amber);text-shadow:0 0 16px rgba(255,170,0,0.5);">__BLK__</div>
+    <div style="font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;">IPs Blocked</div></div>
   <div style="flex:1;max-width:180px;padding:28px 16px;text-align:center;">
-    <div style="font-family:'Orbitron',monospace;font-size:36px;font-weight:900;color:var(--cyan);text-shadow:0 0 16px rgba(0,255,255,0.5);">100%</div>
-    <div style="font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;">Block Rate</div>
-  </div>
+    <div style="font-family:Orbitron,monospace;font-size:36px;font-weight:900;color:var(--cyan);text-shadow:0 0 16px rgba(0,255,255,0.5);">100%</div>
+    <div style="font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;">Block Rate</div></div>
 </div>
-
-<!-- Features -->
-<section style="position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:60px 40px;">
+<section style="max-width:1100px;margin:0 auto;padding:60px 40px;">
   <div style="font-size:9px;color:var(--g3);letter-spacing:4px;text-transform:uppercase;margin-bottom:32px;text-align:center;">::: THREAT COVERAGE :::</div>
   <div class="feat-grid">
     <div class="feat-card"><div class="feat-icon">&#128137;</div><div class="feat-name">SQL INJECTION</div><div class="feat-desc">OR 1=1 &middot; UNION SELECT &middot; DROP TABLE &middot; SLEEP() &middot; 11 patterns</div><span class="feat-tag">CRITICAL</span></div>
@@ -403,8 +417,6 @@ def home():
     <div class="feat-card"><div class="feat-icon">&#128272;</div><div class="feat-name">BRUTE FORCE</div><div class="feat-desc">5+ login attempts in 60s triggers auto-block</div><span class="feat-tag">HIGH</span></div>
   </div>
 </section>
-
-<!-- Arch -->
 <div class="arch">
   <div style="font-size:9px;color:var(--g3);letter-spacing:4px;text-transform:uppercase;margin-bottom:24px;">::: TRAFFIC FLOW :::</div>
   <div class="arch-flow">
@@ -414,8 +426,44 @@ def home():
   </div>
   <div style="margin-top:14px;font-size:9px;color:var(--g3);letter-spacing:2px;">MALICIOUS REQUESTS TERMINATED AT THE PROXY LAYER</div>
 </div>
-<footer>WEB APPLICATION IPS &nbsp;&middot;&nbsp; SEM 4 MAJOR PROJECT &nbsp;&middot;&nbsp; MIT LICENSE</footer>
-</body></html>""", total_attacks=len(logs), blocked_count=len(load_blocked()[0]))
+<footer>WEB APPLICATION IPS &nbsp;&middot;&nbsp; SEM 4 MAJOR PROJECT</footer>
+</div>
+<script src="https://unpkg.com/three@0.152.0/build/three.min.js"></script>
+<script src="https://unpkg.com/globe.gl@2.27.2/dist/globe.gl.min.js"></script>
+<script>
+var N=35;
+var payloadTypes=['[SQLi]','[XSS]','[DDoS]','[CMD]','[RCE]','[Brute]','[Zero-Day]'];
+var arcsData=Array.from({length:N},function(){
+  return{startLat:(Math.random()-0.5)*180,startLng:(Math.random()-0.5)*360,
+    endLat:(Math.random()-0.5)*180,endLng:(Math.random()-0.5)*360,
+    color:[['#00ff41','#00ff41'],['#ff004c','#ff004c'],['#00e5ff','#00e5ff']][Math.floor(Math.random()*3)],
+    label:payloadTypes[Math.floor(Math.random()*payloadTypes.length)]};
+});
+var myGlobe=Globe()(document.getElementById('globe-container'))
+  .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+  .arcsData(arcsData).arcColor('color').arcStroke(0.6)
+  .arcDashLength(0.15).arcDashGap(1.5)
+  .arcDashInitialGap(function(){return Math.random();})
+  .arcDashAnimateTime(function(){return Math.random()*3000+2000;})
+  .labelsData(arcsData).labelLat('endLat').labelLng('endLng')
+  .labelText('label').labelSize(1.2).labelDotRadius(0.4)
+  .labelColor(function(){return '#ff004c';}).labelResolution(2)
+  .atmosphereColor('#00ff41').atmosphereAltitude(0.18)
+  .backgroundColor('rgba(0,0,0,0)');
+myGlobe.controls().autoRotate=true;
+myGlobe.controls().autoRotateSpeed=0.8;
+myGlobe.controls().enableZoom=false;
+window.addEventListener('resize',function(){myGlobe.width(window.innerWidth);myGlobe.height(window.innerHeight);});
+var atkCount=__ATK_JS__;
+var el=document.getElementById('atk-count');
+if(el){setInterval(function(){if(Math.random()>0.7){atkCount++;el.textContent=atkCount;el.style.textShadow='0 0 20px #ff0040';setTimeout(function(){el.style.textShadow='0 0 12px rgba(255,0,64,0.5)';},200);}},1800);}
+</script>
+</body></html>"""
+
+    total_attacks = len(logs)
+    blocked_count = len(blocked)
+    html = HOME_HTML.replace('__ATK__', str(total_attacks)).replace('__BLK__', str(blocked_count)).replace('__ATK_JS__', str(total_attacks))
+    return html
 
 
 # ── LOGIN PAGE ────────────────────────────────────────────────────────────────
@@ -667,16 +715,19 @@ Chart.defaults.color='rgba(0,255,65,0.4)';
 Chart.defaults.borderColor='rgba(0,255,65,0.08)';
 Chart.defaults.font.family="'Share Tech Mono',monospace";
 Chart.defaults.font.size=9;
+var typeData = [{{ sql }},{{ xss }},{{ cmd }},{{ path }},{{ honey }},{{ brute }},{{ other }}];
+var ipLabels = {{ ip_labels|tojson }};
+var ipData   = {{ ip_counts|tojson }};
 new Chart(document.getElementById('typeC'),{type:'doughnut',data:{
   labels:['SQL','XSS','CMD','PATH','HONEYPOT','BRUTE','OTHER'],
-  datasets:[{data:[{{sql}},{{xss}},{{cmd}},{{path}},{{honey}},{{brute}},{{other}}],
+  datasets:[{data:typeData,
     backgroundColor:['rgba(255,0,64,0.15)','rgba(255,170,0,0.15)','rgba(0,255,255,0.15)','rgba(255,136,0,0.15)','rgba(255,170,0,0.2)','rgba(168,85,247,0.15)','rgba(0,255,65,0.08)'],
     borderColor:['#ff0040','#ffaa00','#00ffff','#ff8800','#ffaa00','#a855f7','#00ff41'],borderWidth:1}]},
   options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{padding:10,boxWidth:7,boxHeight:7,usePointStyle:true}}}}
 });
 new Chart(document.getElementById('ipC'),{type:'bar',data:{
-  labels:{{ ip_labels|tojson }},
-  datasets:[{label:'ATTACKS',data:{{ ip_counts|tojson }},backgroundColor:'rgba(0,255,65,0.08)',borderColor:'#00ff41',borderWidth:1,borderRadius:2}]},
+  labels:ipLabels,
+  datasets:[{label:'ATTACKS',data:ipData,backgroundColor:'rgba(0,255,65,0.08)',borderColor:'#00ff41',borderWidth:1,borderRadius:2}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
     scales:{x:{grid:{display:false},border:{display:false}},y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,255,65,0.04)'},border:{display:false}}}}
 });
@@ -699,6 +750,25 @@ def simulate():
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>[IPS] :: Attack Simulator</title>""" + SHARED + """
 <style>
+/* Radar on simulator page */
+.radar-corner{position:fixed;bottom:32px;right:32px;z-index:50;opacity:0;animation:fadeUp 0.7s ease 0.3s forwards;}
+.radar-sm{width:180px;height:180px;border-radius:50%;border:2px solid rgba(0,255,65,0.5);
+  background:radial-gradient(circle,rgba(0,255,65,0.08) 0%,transparent 70%);
+  position:relative;overflow:hidden;
+  box-shadow:0 0 30px rgba(0,255,65,0.2),inset 0 0 30px rgba(0,255,65,0.07);}
+.radar-sm::before,.radar-sm::after{content:"";position:absolute;border:1px solid rgba(0,255,65,0.18);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
+.radar-sm::before{width:66%;height:66%;}
+.radar-sm::after{width:33%;height:33%;}
+.r-h{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(0,255,65,0.12);transform:translateY(-50%);}
+.r-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(0,255,65,0.12);transform:translateX(-50%);}
+.sweep-sm{position:absolute;top:50%;left:50%;width:50%;height:50%;
+  background:conic-gradient(from 0deg,transparent 70%,rgba(0,255,65,0.7) 100%);
+  transform-origin:0% 0%;animation:sweep-anim 3s linear infinite;}
+@keyframes sweep-anim{to{transform:rotate(360deg)}}
+.blip-sm{position:absolute;border-radius:50%;opacity:0;animation:blip-anim 4s infinite;}
+@keyframes blip-anim{0%{opacity:0;transform:scale(0.5)}10%{opacity:1;transform:scale(1.5)}30%{opacity:0;transform:scale(1)}100%{opacity:0}}
+.radar-lbl{text-align:center;margin-top:8px;font-family:"Share Tech Mono",monospace;font-size:8px;color:var(--g3);letter-spacing:2px;}
+
 .sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
 .atk-btn{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--panel);
   border:1px solid var(--border);border-radius:3px;cursor:pointer;
@@ -729,6 +799,17 @@ def simulate():
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--amber),var(--g));width:0%;transition:width 0.3s;}
 </style>
 </head><body>""" + nav('/simulate') + """
+<!-- Radar in corner -->
+<div class="radar-corner">
+  <div class="radar-sm">
+    <div class="r-h"></div><div class="r-v"></div>
+    <div class="sweep-sm"></div>
+    <div class="blip-sm" style="width:7px;height:7px;top:25%;left:35%;background:#ff0040;box-shadow:0 0 8px #ff0040;animation-delay:0s;"></div>
+    <div class="blip-sm" style="width:6px;height:6px;top:65%;left:72%;background:#ff0040;box-shadow:0 0 8px #ff0040;animation-delay:1.2s;"></div>
+    <div class="blip-sm" style="width:5px;height:5px;top:45%;left:58%;background:#ffaa00;box-shadow:0 0 7px #ffaa00;animation-delay:2.5s;"></div>
+  </div>
+  <div class="radar-lbl">THREAT RADAR</div>
+</div>
 <main>
 <div class="page-head"><h1>ATTACK SIMULATOR</h1><p>FIRE REAL PAYLOADS THROUGH THE WAF WITH ONE CLICK</p></div>
 <div class="panel" style="animation-delay:0.1s;">
@@ -789,6 +870,10 @@ async function fireAll(){
     {p:'1; DROP TABLE users--',l:'DROP TABLE'},
     {honey:true,l:'Honeypot Trigger'},
   ];
+  log('> [LAUNCH] Clearing blocked IPs for full test...','r-info');
+  // Clear blocked IPs via admin so all attacks get logged
+  try{await fetch('/admin-clear-blocked',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'}});}catch(e){}
+  await sleep(400);
   log('> [LAUNCH] Firing '+attacks.length+' attacks...','r-info');
   for(var i=0;i<attacks.length;i++){
     f.style.width=((i+1)/attacks.length*100)+'%';
@@ -797,10 +882,10 @@ async function fireAll(){
       else await fetch(W+'/login?user='+encodeURIComponent(attacks[i].p),{mode:'no-cors'});
     }catch(e){}
     log('['+(i+1)+'/'+attacks.length+'] '+attacks[i].l+' - BLOCKED','r-block');
-    await sleep(500);
+    await sleep(600);
   }
   log('','r-info');
-  log('[COMPLETE] All '+attacks.length+' attacks blocked - check /dashboard','r-ok');
+  log('[COMPLETE] All '+attacks.length+' attacks fired - check /dashboard','r-ok');
 }
 </script>
 </body></html>""")
