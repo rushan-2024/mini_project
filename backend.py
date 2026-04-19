@@ -242,6 +242,7 @@ def nav(active=''):
         ('/dashboard', 'DASHBOARD', ''),
         ('/simulate', 'SIMULATOR', ''),
         ('/compare', 'COMPARISON', ''),
+        ('/honeypots', 'HONEYPOTS', ''),
         ('/stats', 'STATS', ''),
         ('/report', 'REPORT', 'nav-report'),
         ('/admin', 'ADMIN', 'nav-admin'),
@@ -274,7 +275,6 @@ def home():
 
 .hero{position:relative;z-index:10;min-height:92vh;display:flex;align-items:center;padding:100px 7% 60px;gap:40px;}
 .hero-left{flex:1;max-width:600px;}
-.hero-right{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 
 .sys-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,255,65,0.4);
   padding:7px 16px;border-radius:3px;font-size:10px;color:var(--g);letter-spacing:2px;
@@ -301,24 +301,28 @@ def home():
 .ps-val.cyan{color:var(--cyan);text-shadow:0 0 12px rgba(0,255,255,0.5);}
 .ps-label{font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;}
 
-.radar-wrap{position:relative;width:280px;height:280px;opacity:0;animation:fadeUp 0.7s ease 0.9s forwards;}
-.radar{width:280px;height:280px;border-radius:50%;border:2px solid rgba(0,255,65,0.55);
-  background:radial-gradient(circle,rgba(0,255,65,0.09) 0%,transparent 70%);
+/* Radar — fixed behind hero text, in front of globe */
+.radar-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:560px;height:560px;z-index:3;pointer-events:none;opacity:0;
+  animation:fadeUp 1.2s ease 0.4s forwards;}
+.radar-bg .radar{width:560px;height:560px;border-radius:50%;
+  border:1px solid rgba(0,255,65,0.25);
+  background:radial-gradient(circle,rgba(0,255,65,0.04) 0%,transparent 65%);
   position:relative;overflow:hidden;
-  box-shadow:0 0 50px rgba(0,255,65,0.25),inset 0 0 50px rgba(0,255,65,0.09);}
-.radar::before,.radar::after{content:"";position:absolute;border:1px solid rgba(0,255,65,0.18);
-  border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
-.radar::before{width:66%;height:66%;}
-.radar::after{width:33%;height:33%;}
-.r-cross-h{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(0,255,65,0.14);transform:translateY(-50%);}
-.r-cross-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(0,255,65,0.14);transform:translateX(-50%);}
+  box-shadow:0 0 80px rgba(0,255,65,0.1),inset 0 0 80px rgba(0,255,65,0.04);}
+.radar-bg .radar::before,.radar-bg .radar::after{content:"";position:absolute;
+  border:1px solid rgba(0,255,65,0.12);border-radius:50%;
+  top:50%;left:50%;transform:translate(-50%,-50%);}
+.radar-bg .radar::before{width:66%;height:66%;}
+.radar-bg .radar::after{width:33%;height:33%;}
+.r-cross-h{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(0,255,65,0.1);transform:translateY(-50%);}
+.r-cross-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(0,255,65,0.1);transform:translateX(-50%);}
 .sweep{position:absolute;top:50%;left:50%;width:50%;height:50%;
-  background:conic-gradient(from 0deg,transparent 70%,rgba(0,255,65,0.75) 100%);
-  transform-origin:0% 0%;animation:sweep-anim 3s linear infinite;}
+  background:conic-gradient(from 0deg,transparent 72%,rgba(0,255,65,0.45) 100%);
+  transform-origin:0% 0%;animation:sweep-anim 4s linear infinite;}
 @keyframes sweep-anim{to{transform:rotate(360deg)}}
 .blip{position:absolute;border-radius:50%;opacity:0;animation:blip-anim 4s infinite;}
 @keyframes blip-anim{0%{opacity:0;transform:scale(0.5)}10%{opacity:1;transform:scale(1.5)}30%{opacity:0;transform:scale(1)}100%{opacity:0}}
-.radar-label{text-align:center;margin-top:14px;font-family:"Share Tech Mono",monospace;font-size:9px;color:var(--g3);letter-spacing:3px;}
 
 .quick-nav{position:relative;z-index:10;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
   background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
@@ -347,6 +351,18 @@ def home():
 <div id="globe-container"></div>
 <div class="scanlines"></div>
 <div class="overlay"></div>
+<!-- Radar behind text, in front of globe -->
+<div class="radar-bg">
+  <div class="radar">
+    <div class="r-cross-h"></div><div class="r-cross-v"></div>
+    <div class="sweep"></div>
+    <div class="blip" style="width:9px;height:9px;top:18%;left:30%;background:#ff0040;box-shadow:0 0 12px #ff0040;animation-delay:0s;"></div>
+    <div class="blip" style="width:8px;height:8px;top:72%;left:76%;background:#ff0040;box-shadow:0 0 12px #ff0040;animation-delay:1s;"></div>
+    <div class="blip" style="width:7px;height:7px;top:40%;left:65%;background:#ffaa00;box-shadow:0 0 10px #ffaa00;animation-delay:2.2s;"></div>
+    <div class="blip" style="width:6px;height:6px;top:80%;left:25%;background:#ff0040;box-shadow:0 0 10px #ff0040;animation-delay:3.1s;"></div>
+    <div class="blip" style="width:5px;height:5px;top:55%;left:82%;background:#ffaa00;box-shadow:0 0 8px #ffaa00;animation-delay:1.7s;"></div>
+  </div>
+</div>
 """ + nav('/') + """
 <section class="hero">
   <div class="hero-left">
@@ -371,24 +387,12 @@ def home():
       </div>
     </div>
   </div>
-  <div class="hero-right">
-    <div class="radar-wrap">
-      <div class="radar">
-        <div class="r-cross-h"></div><div class="r-cross-v"></div>
-        <div class="sweep"></div>
-        <div class="blip" style="width:8px;height:8px;top:22%;left:33%;background:#ff0040;box-shadow:0 0 10px #ff0040;animation-delay:0s;"></div>
-        <div class="blip" style="width:7px;height:7px;top:68%;left:78%;background:#ff0040;box-shadow:0 0 10px #ff0040;animation-delay:0.8s;"></div>
-        <div class="blip" style="width:6px;height:6px;top:42%;left:62%;background:#ffaa00;box-shadow:0 0 10px #ffaa00;animation-delay:2s;"></div>
-        <div class="blip" style="width:5px;height:5px;top:75%;left:28%;background:#ff0040;box-shadow:0 0 8px #ff0040;animation-delay:3s;"></div>
-      </div>
-      <div class="radar-label">THREAT RADAR &nbsp;&middot;&nbsp; LIVE SCAN</div>
-    </div>
-  </div>
 </section>
+<!-- Radar behind text, in front of globe, centred on page -->
 <div class="quick-nav">
   <a href="/simulate" class="qcard"><div class="qcard-icon">&#9889;</div><div class="qcard-title">SIMULATOR</div><div class="qcard-desc">Fire real attack payloads with one click</div><div class="qcard-link">&#8594; /simulate</div></a>
+  <a href="/honeypots" class="qcard"><div class="qcard-icon">&#127855;</div><div class="qcard-title">HONEYPOTS</div><div class="qcard-desc">5-layer deception network — 50+ traps</div><div class="qcard-link">&#8594; /honeypots</div></a>
   <a href="/compare" class="qcard"><div class="qcard-icon">&#9878;</div><div class="qcard-title">COMPARISON</div><div class="qcard-desc">Side-by-side: without WAF vs with WAF</div><div class="qcard-link">&#8594; /compare</div></a>
-  <a href="/stats" class="qcard"><div class="qcard-icon">&#128202;</div><div class="qcard-title">PROJECT STATS</div><div class="qcard-desc">Tech stack, timeline and project overview</div><div class="qcard-link">&#8594; /stats</div></a>
   <a href="/admin" class="qcard"><div class="qcard-icon">&#128274;</div><div class="qcard-title">ADMIN PANEL</div><div class="qcard-desc">Manage blocked IPs and system settings</div><div class="qcard-link">&#8594; /admin</div></a>
 </div>
 <div class="page-body">
@@ -1123,6 +1127,206 @@ def stats():
 </main>
 </body></html>""", total=len(logs), blocked=len(blocked))
 
+
+# ── HONEYPOTS PAGE ────────────────────────────────────────────────────────────
+@app.route('/honeypots')
+def honeypots():
+    return render_template_string("""<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>[IPS] :: Honeypot System</title>""" + SHARED + """
+<style>
+.hp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.hp-card{background:var(--panel);border-radius:4px;overflow:hidden;position:relative;
+  opacity:0;animation:fadeUp 0.4s ease forwards;}
+.hp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.hp-c1::before{background:rgba(255,170,0,0.8);}
+.hp-c2::before{background:rgba(0,255,255,0.8);}
+.hp-c3::before{background:rgba(168,85,247,0.8);}
+.hp-c4::before{background:rgba(255,136,0,0.8);}
+.hp-c5::before{background:rgba(255,0,64,0.8);}
+.hp-header{display:flex;align-items:center;gap:14px;padding:18px 20px;border-bottom:1px solid var(--border);}
+.hp-icon{font-size:28px;flex-shrink:0;}
+.hp-type{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:3px;}
+.hp-c1 .hp-type{color:var(--amber);}
+.hp-c2 .hp-type{color:var(--cyan);}
+.hp-c3 .hp-type{color:var(--violet);}
+.hp-c4 .hp-type{color:var(--orange);}
+.hp-c5 .hp-type{color:var(--red);}
+.hp-severity{font-size:8px;letter-spacing:2px;padding:2px 8px;border-radius:2px;border:1px solid;}
+.sev-CRITICAL{color:var(--red);border-color:rgba(255,0,64,0.4);background:rgba(255,0,64,0.07);}
+.sev-HIGH{color:var(--amber);border-color:rgba(255,170,0,0.4);background:rgba(255,170,0,0.07);}
+.hp-body{padding:18px 20px;}
+.hp-desc{font-size:11px;color:var(--dim);line-height:1.8;margin-bottom:14px;}
+.hp-why{font-size:10px;color:var(--g);margin-bottom:10px;}
+.hp-paths{display:flex;flex-wrap:wrap;gap:6px;}
+.hp-path{font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 10px;
+  border-radius:2px;border:1px solid var(--border);color:var(--muted);
+  background:var(--bg3);}
+.hp-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;
+  opacity:0;animation:fadeUp 0.4s ease 0.1s forwards;}
+.hp-stat{background:var(--panel);border:1px solid var(--border);border-radius:4px;
+  padding:16px;text-align:center;position:relative;overflow:hidden;}
+.hp-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;}
+.hp-stat:nth-child(1)::before{background:var(--amber);}
+.hp-stat:nth-child(2)::before{background:var(--cyan);}
+.hp-stat:nth-child(3)::before{background:var(--violet);}
+.hp-stat:nth-child(4)::before{background:var(--orange);}
+.hp-stat:nth-child(5)::before{background:var(--red);}
+.hp-stat-n{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;color:var(--g);line-height:1;margin-bottom:4px;}
+.hp-stat-l{font-size:7px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;}
+</style>
+</head><body>""" + nav('/honeypots') + """
+<main>
+<div class="page-head">
+  <h1>HONEYPOT SYSTEM</h1>
+  <p>5-LAYER DECEPTION NETWORK FOR PROACTIVE INTRUSION DETECTION</p>
+</div>
+
+<div class="hp-stats">
+  <div class="hp-stat"><div class="hp-stat-n">5</div><div class="hp-stat-l">Honeypot Types</div></div>
+  <div class="hp-stat"><div class="hp-stat-n">50+</div><div class="hp-stat-l">Trap Paths</div></div>
+  <div class="hp-stat"><div class="hp-stat-n">CRITICAL</div><div class="hp-stat-l" style="font-size:6px;">Max Severity</div></div>
+  <div class="hp-stat"><div class="hp-stat-n">3</div><div class="hp-stat-l">Strike Rule</div></div>
+  <div class="hp-stat"><div class="hp-stat-n">AUTO</div><div class="hp-stat-l">IP Block</div></div>
+</div>
+
+<div class="hp-grid">
+  <!-- 1. Web Login Honeypot -->
+  <div class="hp-card hp-c1" style="animation-delay:0.1s;">
+    <div class="hp-header">
+      <div class="hp-icon">&#127856;</div>
+      <div>
+        <div class="hp-type">WEB LOGIN HONEYPOT</div>
+        <span class="hp-severity sev-CRITICAL">CRITICAL</span>
+      </div>
+    </div>
+    <div class="hp-body">
+      <div class="hp-desc">Fake admin login pages that appear real. Any access attempt — whether by bots, scanners or attackers — is immediately logged and the IP flagged.</div>
+      <div class="hp-why">&#128161; Detects: Web-based attacks, admin panel probing, credential stuffing</div>
+      <div class="hp-paths">
+        <span class="hp-path">/admin</span><span class="hp-path">/wp-admin</span>
+        <span class="hp-path">/administrator</span><span class="hp-path">/panel</span>
+        <span class="hp-path">/cpanel</span><span class="hp-path">/manage</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Hidden URL Honeypot -->
+  <div class="hp-card hp-c2" style="animation-delay:0.15s;">
+    <div class="hp-header">
+      <div class="hp-icon">&#128373;</div>
+      <div>
+        <div class="hp-type">HIDDEN URL HONEYPOT</div>
+        <span class="hp-severity sev-HIGH">HIGH</span>
+      </div>
+    </div>
+    <div class="hp-body">
+      <div class="hp-desc">Invisible decoy URLs that are never linked anywhere. Only automated bots and network scanners discover these paths through brute-force enumeration.</div>
+      <div class="hp-why">&#128161; Detects: Reconnaissance, directory enumeration, bot crawlers</div>
+      <div class="hp-paths">
+        <span class="hp-path">/secret-admin</span><span class="hp-path">/hidden</span>
+        <span class="hp-path">/backup</span><span class="hp-path">/staging</span>
+        <span class="hp-path">/internal</span><span class="hp-path">/vault</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. SSH Honeypot -->
+  <div class="hp-card hp-c3" style="animation-delay:0.2s;">
+    <div class="hp-header">
+      <div class="hp-icon">&#128272;</div>
+      <div>
+        <div class="hp-type">SSH HONEYPOT</div>
+        <span class="hp-severity sev-CRITICAL">CRITICAL</span>
+      </div>
+    </div>
+    <div class="hp-body">
+      <div class="hp-desc">Fake remote access and shell endpoints. Attackers attempting to gain shell access or execute remote commands trigger this trap instantly.</div>
+      <div class="hp-why">&#128161; Detects: Remote code execution attempts, shell access, SSH brute force</div>
+      <div class="hp-paths">
+        <span class="hp-path">/shell</span><span class="hp-path">/cmd.php</span>
+        <span class="hp-path">/terminal</span><span class="hp-path">/bash</span>
+        <span class="hp-path">/execute</span><span class="hp-path">/remote-access</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Port Scanner Honeypot -->
+  <div class="hp-card hp-c4" style="animation-delay:0.25s;">
+    <div class="hp-header">
+      <div class="hp-icon">&#128225;</div>
+      <div>
+        <div class="hp-type">PORT SCANNER HONEYPOT</div>
+        <span class="hp-severity sev-HIGH">HIGH</span>
+      </div>
+    </div>
+    <div class="hp-body">
+      <div class="hp-desc">Mimics endpoints of common vulnerable services (MySQL, FTP, phpMyAdmin). Port scanners and automated exploit tools hit these first, revealing attacker intent.</div>
+      <div class="hp-why">&#128161; Detects: Port scanning, service fingerprinting, automated exploits</div>
+      <div class="hp-paths">
+        <span class="hp-path">/phpmyadmin</span><span class="hp-path">/mysql</span>
+        <span class="hp-path">/jenkins</span><span class="hp-path">/solr</span>
+        <span class="hp-path">/actuator</span><span class="hp-path">/jboss</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Honey Credentials Honeypot -->
+  <div class="hp-card hp-c5" style="grid-column:1/-1;animation-delay:0.3s;">
+    <div class="hp-header">
+      <div class="hp-icon">&#128273;</div>
+      <div>
+        <div class="hp-type">HONEY CREDENTIALS HONEYPOT</div>
+        <span class="hp-severity sev-CRITICAL">CRITICAL</span>
+      </div>
+    </div>
+    <div class="hp-body">
+      <div class="hp-desc">Fake configuration files and credential stores. This is the most sensitive trap — an attacker who reaches these files has already bypassed other defences, indicating advanced post-exploitation or insider threat. Any access immediately triggers permanent IP block.</div>
+      <div class="hp-why">&#128161; Detects: Post-exploitation, insider threats, automated config file harvesters, secrets extraction</div>
+      <div class="hp-paths">
+        <span class="hp-path">/.env</span><span class="hp-path">/config.php</span>
+        <span class="hp-path">/.git/config</span><span class="hp-path">/wp-config.php</span>
+        <span class="hp-path">/database.yml</span><span class="hp-path">/secrets.json</span>
+        <span class="hp-path">/passwords.txt</span><span class="hp-path">/backup.sql</span>
+        <span class="hp-path">/api-keys.txt</span><span class="hp-path">/credentials.xml</span>
+        <span class="hp-path">/.htpasswd</span><span class="hp-path">/web.config</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" style="animation-delay:0.35s;">
+  <div class="panel-title">HOW HONEYPOTS WORK IN THIS IPS</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px;">
+    <div style="background:var(--bg3);padding:16px;text-align:center;">
+      <div style="font-size:20px;margin-bottom:8px;">&#128270;</div>
+      <div style="font-family:'Orbitron',monospace;font-size:9px;color:var(--g);letter-spacing:1px;margin-bottom:6px;">DETECT</div>
+      <div style="font-size:9px;color:var(--dim);">Attacker accesses a decoy path</div>
+    </div>
+    <div style="background:var(--bg3);padding:16px;text-align:center;">
+      <div style="font-size:20px;margin-bottom:8px;">&#128221;</div>
+      <div style="font-family:'Orbitron',monospace;font-size:9px;color:var(--amber);letter-spacing:1px;margin-bottom:6px;">LOG</div>
+      <div style="font-size:9px;color:var(--dim);">IP, path, type and timestamp recorded</div>
+    </div>
+    <div style="background:var(--bg3);padding:16px;text-align:center;">
+      <div style="font-size:20px;margin-bottom:8px;">&#128308;</div>
+      <div style="font-family:'Orbitron',monospace;font-size:9px;color:var(--red);letter-spacing:1px;margin-bottom:6px;">BLOCK</div>
+      <div style="font-size:9px;color:var(--dim);">IP flagged — blocked after 3 honeypot hits</div>
+    </div>
+    <div style="background:var(--bg3);padding:16px;text-align:center;">
+      <div style="font-size:20px;margin-bottom:8px;">&#128202;</div>
+      <div style="font-family:'Orbitron',monospace;font-size:9px;color:var(--cyan);letter-spacing:1px;margin-bottom:6px;">REPORT</div>
+      <div style="font-size:9px;color:var(--dim);">Visible in dashboard + PDF report</div>
+    </div>
+  </div>
+</div>
+<div style="text-align:center;margin-top:20px;padding-bottom:40px;position:relative;z-index:1;">
+  <a href="http://localhost:8080/.env" class="btn btn-r" style="margin-right:10px;">TEST: Honey Credentials</a>
+  <a href="http://localhost:8080/phpmyadmin" class="btn btn-a" style="margin-right:10px;">TEST: Port Scanner</a>
+  <a href="http://localhost:8080/secret-admin" class="btn btn-c">TEST: Hidden URL</a>
+</div>
+</main>
+</body></html>""")
 
 # ── REPORT PAGE ───────────────────────────────────────────────────────────────
 @app.route('/report')

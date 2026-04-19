@@ -32,20 +32,24 @@ def save_blocked(blocked_ips, attack_count):
 
 blocked_ips, attack_count = load_blocked()
 
-# ── Block pages ───────────────────────────────────────────────────────────────
+# ── Blocked pages ─────────────────────────────────────────────────────────────
 def blocked_page(ip, attack_type, severity='HIGH'):
-    sev_color = {'CRITICAL': '#ff0040', 'HIGH': '#ffaa00', 'MEDIUM': '#00ffff', 'LOW': '#00ff41'}.get(severity, '#ff0040')
+    sev_color = {
+        'CRITICAL': '#ff0040',
+        'HIGH':     '#ffaa00',
+        'MEDIUM':   '#00ffff',
+        'LOW':      '#00ff41'
+    }.get(severity, '#ff0040')
     return f"""<!DOCTYPE html><html><head><title>Blocked</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@900&display=swap" rel="stylesheet">
 <style>
 *{{margin:0;padding:0;box-sizing:border-box;}}
 body{{font-family:'Share Tech Mono',monospace;background:#050a05;display:flex;justify-content:center;align-items:center;height:100vh;cursor:crosshair;}}
 body::after{{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);z-index:99;}}
-body::before{{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.6) 100%);z-index:98;}}
 .card{{background:#0c160c;border:1px solid {sev_color};border-radius:4px;padding:50px 60px;text-align:center;max-width:520px;position:relative;box-shadow:0 0 40px {sev_color}33;}}
 .card::before{{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,{sev_color},transparent);}}
 .icon{{font-size:56px;margin-bottom:20px;}}
-h1{{font-family:'Orbitron',monospace;font-size:24px;color:{sev_color};text-shadow:0 0 20px {sev_color}88;margin-bottom:14px;letter-spacing:3px;}}
+h1{{font-family:'Orbitron',monospace;font-size:22px;color:{sev_color};text-shadow:0 0 20px {sev_color}88;margin-bottom:14px;letter-spacing:3px;}}
 .sev{{display:inline-block;padding:4px 16px;border:1px solid {sev_color};color:{sev_color};font-size:10px;letter-spacing:3px;margin-bottom:16px;}}
 p{{color:rgba(0,255,65,0.4);font-size:12px;line-height:1.8;margin-bottom:8px;}}
 .ip{{color:{sev_color};font-size:14px;margin:10px 0;}}
@@ -53,7 +57,7 @@ p{{color:rgba(0,255,65,0.4);font-size:12px;line-height:1.8;margin-bottom:8px;}}
 .footer{{margin-top:24px;font-size:9px;color:rgba(0,255,65,0.2);letter-spacing:2px;}}
 </style></head><body>
 <div class="card">
-  <div class="icon">🛡️</div>
+  <div class="icon">&#128737;&#65039;</div>
   <div class="sev">{severity}</div>
   <h1>ACCESS BLOCKED</h1>
   <p>Your request was identified as a potential attack<br>and has been intercepted by the WAF.</p>
@@ -70,17 +74,16 @@ def ip_blocked_page(ip):
 *{{margin:0;padding:0;box-sizing:border-box;}}
 body{{font-family:'Share Tech Mono',monospace;background:#050a05;display:flex;justify-content:center;align-items:center;height:100vh;cursor:crosshair;}}
 body::after{{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);z-index:99;}}
-body::before{{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.6) 100%);z-index:98;}}
-.card{{background:#0c160c;border:2px solid #ff0040;border-radius:4px;padding:50px 60px;text-align:center;max-width:520px;box-shadow:0 0 60px #ff004044;}}
+.card{{background:#0c160c;border:2px solid #ff0040;border-radius:4px;padding:50px 60px;text-align:center;max-width:520px;box-shadow:0 0 60px #ff004444;position:relative;}}
 .card::before{{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#ff0040,transparent);}}
 .icon{{font-size:56px;margin-bottom:20px;}}
-h1{{font-family:'Orbitron',monospace;font-size:22px;color:#ff0040;text-shadow:0 0 20px #ff004088;margin-bottom:14px;letter-spacing:3px;}}
+h1{{font-family:'Orbitron',monospace;font-size:20px;color:#ff0040;text-shadow:0 0 20px #ff004088;margin-bottom:14px;letter-spacing:3px;}}
 p{{color:rgba(0,255,65,0.4);font-size:12px;line-height:1.8;margin-bottom:8px;}}
 .ip{{color:#ff0040;font-size:18px;font-weight:bold;margin:12px 0;text-shadow:0 0 10px #ff004066;}}
 .footer{{margin-top:24px;font-size:9px;color:rgba(0,255,65,0.2);letter-spacing:2px;}}
 </style></head><body>
 <div class="card">
-  <div class="icon">🚫</div>
+  <div class="icon">&#128683;</div>
   <h1>IP PERMANENTLY BLOCKED</h1>
   <p>Your IP has been permanently banned due to<br>repeated malicious attack attempts.</p>
   <div class="ip">{ip}</div>
@@ -88,29 +91,37 @@ p{{color:rgba(0,255,65,0.4);font-size:12px;line-height:1.8;margin-bottom:8px;}}
 </div>
 </body></html>""", 403
 
-def honeypot_page(ip, path):
-    return f"""<!DOCTYPE html><html><head><title>Honeypot Triggered</title>
+def honeypot_page(ip, path, honeypot_type):
+    """Show different page based on honeypot type"""
+    type_config = {
+        'Web Login Honeypot':       ('&#127856;', '#ffaa00', 'ADMIN TRAP ACTIVATED',      'You accessed a fake admin login page.'),
+        'Hidden URL Honeypot':      ('&#128373;', '#00ffff', 'HIDDEN URL TRAP',           'This URL is a hidden decoy. Bots and scanners detected.'),
+        'SSH Honeypot':             ('&#128272;', '#a855f7', 'SSH HONEYPOT TRIGGERED',    'Remote access attempts are logged and flagged.'),
+        'Port Scanner Honeypot':    ('&#128225;', '#ff8800', 'PORT SCAN DETECTED',        'This endpoint is a honeypot for port scanners.'),
+        'Honey Credentials Honeypot':('&#128273;', '#ff0040', 'CREDENTIAL TRAP TRIGGERED','Accessing config/credential files is a critical indicator.'),
+    }
+    icon, color, title, desc = type_config.get(honeypot_type, ('&#127855;', '#ffaa00', 'HONEYPOT TRIGGERED', 'Decoy path accessed.'))
+    return f"""<!DOCTYPE html><html><head><title>Honeypot</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@900&display=swap" rel="stylesheet">
 <style>
 *{{margin:0;padding:0;box-sizing:border-box;}}
 body{{font-family:'Share Tech Mono',monospace;background:#050a05;display:flex;justify-content:center;align-items:center;height:100vh;cursor:crosshair;}}
 body::after{{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);z-index:99;}}
-body::before{{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.6) 100%);z-index:98;}}
-.card{{background:#0c160c;border:1px solid #ffaa00;border-radius:4px;padding:50px 60px;text-align:center;max-width:540px;box-shadow:0 0 40px #ffaa0033;}}
-.card::before{{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#ffaa00,transparent);}}
+.card{{background:#0c160c;border:1px solid {color};border-radius:4px;padding:50px 60px;text-align:center;max-width:540px;box-shadow:0 0 40px {color}33;position:relative;}}
+.card::before{{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,{color},transparent);}}
 .icon{{font-size:56px;margin-bottom:20px;}}
-h1{{font-family:'Orbitron',monospace;font-size:22px;color:#ffaa00;text-shadow:0 0 20px #ffaa0088;margin-bottom:14px;letter-spacing:3px;}}
-.sev{{display:inline-block;padding:4px 16px;border:1px solid #ffaa00;color:#ffaa00;font-size:10px;letter-spacing:3px;margin-bottom:16px;}}
+.type-badge{{display:inline-block;padding:4px 16px;border:1px solid {color};color:{color};font-size:9px;letter-spacing:3px;margin-bottom:16px;}}
+h1{{font-family:'Orbitron',monospace;font-size:20px;color:{color};text-shadow:0 0 20px {color}88;margin-bottom:14px;letter-spacing:2px;}}
 p{{color:rgba(0,255,65,0.4);font-size:12px;line-height:1.8;margin-bottom:8px;}}
-.path{{color:#ffaa00;font-size:13px;margin:10px 0;}}
+.path{{color:{color};font-size:13px;margin:10px 0;}}
 .ip{{color:rgba(0,255,65,0.5);font-size:11px;}}
 .footer{{margin-top:24px;font-size:9px;color:rgba(0,255,65,0.2);letter-spacing:2px;}}
 </style></head><body>
 <div class="card">
-  <div class="icon">🍯</div>
-  <div class="sev">HONEYPOT TRIGGERED</div>
-  <h1>TRAP ACTIVATED</h1>
-  <p>You accessed a restricted decoy path.<br>This activity has been logged and your IP flagged.</p>
+  <div class="icon">{icon}</div>
+  <div class="type-badge">{honeypot_type.upper()}</div>
+  <h1>{title}</h1>
+  <p>{desc}<br>Your activity has been logged and your IP flagged.</p>
   <div class="path">PATH: {path}</div>
   <div class="ip">IP: {ip}</div>
   <div class="footer">WEB APPLICATION INTRUSION PREVENTION SYSTEM</div>
@@ -129,17 +140,16 @@ def proxy(path):
         print(f'[BLOCKED IP] {ip} tried to access /{path}')
         return ip_blocked_page(ip)
 
-    # 2. Honeypot check
-    if is_honeypot('/' + path):
-        print(f'[HONEYPOT] {ip} accessed /{path}')
+    # 2. Honeypot check — returns type string or None
+    honeypot_type = is_honeypot('/' + path)
+    if honeypot_type:
+        print(f'[{honeypot_type.upper()}] {ip} accessed /{path}')
         log_attack(ip, f'/{path}', 'Honeypot')
         attack_count[ip] = attack_count.get(ip, 0) + 1
         if attack_count[ip] >= 3:
             blocked_ips.add(ip)
-            save_blocked(blocked_ips, attack_count)
-        else:
-            save_blocked(blocked_ips, attack_count)
-        return honeypot_page(ip, '/' + path)
+        save_blocked(blocked_ips, attack_count)
+        return honeypot_page(ip, '/' + path, honeypot_type)
 
     # 3. General rate limit
     if check_rate(ip):
@@ -153,9 +163,7 @@ def proxy(path):
             attack_count[ip] = attack_count.get(ip, 0) + 1
             if attack_count[ip] >= 3:
                 blocked_ips.add(ip)
-                save_blocked(blocked_ips, attack_count)
-            else:
-                save_blocked(blocked_ips, attack_count)
+            save_blocked(blocked_ips, attack_count)
             return blocked_page(ip, 'Brute Force', 'HIGH')
 
     # 5. Payload attack detection
