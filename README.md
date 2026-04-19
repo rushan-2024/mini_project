@@ -171,6 +171,4 @@ Fork → Create branch → Submit PR
 
 ---
 
-## 📜 License
 
-For educational and academic use only.
