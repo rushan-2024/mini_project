@@ -54,6 +54,7 @@ requirements.txt
 Clone repository:
 
 git clone https://github.com/rushan-2024/mini_project.git
+
 cd mini_project
 
 Install dependencies:
@@ -78,12 +79,19 @@ This will:
 ## 🌐 Application Routes
 
 Home: http://localhost:5001
+
 Login: http://localhost:5001/login
+
 Dashboard: http://localhost:5001/dashboard
+
 Simulator: http://localhost:5001/simulate
+
 Comparison: http://localhost:5001/compare
+
 Stats: http://localhost:5001/stats
+
 Admin Panel: http://localhost:5001/admin
+
 PDF Report: http://localhost:5003
 
 ---
