@@ -11,35 +11,26 @@ BLOCK_FILE = 'blocked_ips.json'
 
 app = Flask(__name__)
 
-# ── Persistence ───────────────────────────────────────────────────────────────
 def load_blocked():
+    """Always reads from disk — so admin unblock takes effect immediately."""
     if os.path.exists(BLOCK_FILE):
         try:
             with open(BLOCK_FILE) as f:
                 content = f.read().strip()
                 if not content:
-                    os.remove(BLOCK_FILE)
                     return set(), {}
                 data = json.loads(content)
-                return set(data['blocked_ips']), data['attack_count']
+                return set(data.get('blocked_ips', [])), data.get('attack_count', {})
         except:
-            os.remove(BLOCK_FILE)
+            pass
     return set(), {}
 
 def save_blocked(blocked_ips, attack_count):
     with open(BLOCK_FILE, 'w') as f:
         json.dump({'blocked_ips': list(blocked_ips), 'attack_count': attack_count}, f)
 
-blocked_ips, attack_count = load_blocked()
-
-# ── Blocked pages ─────────────────────────────────────────────────────────────
 def blocked_page(ip, attack_type, severity='HIGH'):
-    sev_color = {
-        'CRITICAL': '#ff0040',
-        'HIGH':     '#ffaa00',
-        'MEDIUM':   '#00ffff',
-        'LOW':      '#00ff41'
-    }.get(severity, '#ff0040')
+    sev_color = {'CRITICAL':'#ff0040','HIGH':'#ffaa00','MEDIUM':'#00ffff','LOW':'#00ff41'}.get(severity,'#ff0040')
     return f"""<!DOCTYPE html><html><head><title>Blocked</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@900&display=swap" rel="stylesheet">
 <style>
@@ -64,8 +55,7 @@ p{{color:rgba(0,255,65,0.4);font-size:12px;line-height:1.8;margin-bottom:8px;}}
   <div class="ip">{ip}</div>
   <div class="atk">THREAT: {attack_type}</div>
   <div class="footer">WEB APPLICATION INTRUSION PREVENTION SYSTEM</div>
-</div>
-</body></html>""", 403
+</div></body></html>""", 403
 
 def ip_blocked_page(ip):
     return f"""<!DOCTYPE html><html><head><title>IP Blocked</title>
@@ -88,19 +78,17 @@ p{{color:rgba(0,255,65,0.4);font-size:12px;line-height:1.8;margin-bottom:8px;}}
   <p>Your IP has been permanently banned due to<br>repeated malicious attack attempts.</p>
   <div class="ip">{ip}</div>
   <div class="footer">WEB APPLICATION INTRUSION PREVENTION SYSTEM</div>
-</div>
-</body></html>""", 403
+</div></body></html>""", 403
 
 def honeypot_page(ip, path, honeypot_type):
-    """Show different page based on honeypot type"""
     type_config = {
-        'Web Login Honeypot':       ('&#127856;', '#ffaa00', 'ADMIN TRAP ACTIVATED',      'You accessed a fake admin login page.'),
-        'Hidden URL Honeypot':      ('&#128373;', '#00ffff', 'HIDDEN URL TRAP',           'This URL is a hidden decoy. Bots and scanners detected.'),
-        'SSH Honeypot':             ('&#128272;', '#a855f7', 'SSH HONEYPOT TRIGGERED',    'Remote access attempts are logged and flagged.'),
-        'Port Scanner Honeypot':    ('&#128225;', '#ff8800', 'PORT SCAN DETECTED',        'This endpoint is a honeypot for port scanners.'),
-        'Honey Credentials Honeypot':('&#128273;', '#ff0040', 'CREDENTIAL TRAP TRIGGERED','Accessing config/credential files is a critical indicator.'),
+        'Web Login Honeypot':        ('&#127856;','#ffaa00','ADMIN TRAP ACTIVATED','You accessed a fake admin login page.'),
+        'Hidden URL Honeypot':       ('&#128373;','#00ffff','HIDDEN URL TRAP','This URL is a hidden decoy.'),
+        'SSH Honeypot':              ('&#128272;','#a855f7','SSH HONEYPOT TRIGGERED','Remote access attempts are logged.'),
+        'Port Scanner Honeypot':     ('&#128225;','#ff8800','PORT SCAN DETECTED','This endpoint is a honeypot for port scanners.'),
+        'Honey Credentials Honeypot':('&#128273;','#ff0040','CREDENTIAL TRAP TRIGGERED','Accessing config/credential files is critical.'),
     }
-    icon, color, title, desc = type_config.get(honeypot_type, ('&#127855;', '#ffaa00', 'HONEYPOT TRIGGERED', 'Decoy path accessed.'))
+    icon,color,title,desc = type_config.get(honeypot_type,('&#127855;','#ffaa00','HONEYPOT TRIGGERED','Decoy path accessed.'))
     return f"""<!DOCTYPE html><html><head><title>Honeypot</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@900&display=swap" rel="stylesheet">
 <style>
@@ -110,7 +98,7 @@ body::after{{content:'';position:fixed;inset:0;pointer-events:none;background:re
 .card{{background:#0c160c;border:1px solid {color};border-radius:4px;padding:50px 60px;text-align:center;max-width:540px;box-shadow:0 0 40px {color}33;position:relative;}}
 .card::before{{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,{color},transparent);}}
 .icon{{font-size:56px;margin-bottom:20px;}}
-.type-badge{{display:inline-block;padding:4px 16px;border:1px solid {color};color:{color};font-size:9px;letter-spacing:3px;margin-bottom:16px;}}
+.badge{{display:inline-block;padding:4px 16px;border:1px solid {color};color:{color};font-size:9px;letter-spacing:3px;margin-bottom:16px;}}
 h1{{font-family:'Orbitron',monospace;font-size:20px;color:{color};text-shadow:0 0 20px {color}88;margin-bottom:14px;letter-spacing:2px;}}
 p{{color:rgba(0,255,65,0.4);font-size:12px;line-height:1.8;margin-bottom:8px;}}
 .path{{color:{color};font-size:13px;margin:10px 0;}}
@@ -119,54 +107,55 @@ p{{color:rgba(0,255,65,0.4);font-size:12px;line-height:1.8;margin-bottom:8px;}}
 </style></head><body>
 <div class="card">
   <div class="icon">{icon}</div>
-  <div class="type-badge">{honeypot_type.upper()}</div>
+  <div class="badge">{honeypot_type.upper()}</div>
   <h1>{title}</h1>
   <p>{desc}<br>Your activity has been logged and your IP flagged.</p>
   <div class="path">PATH: {path}</div>
   <div class="ip">IP: {ip}</div>
   <div class="footer">WEB APPLICATION INTRUSION PREVENTION SYSTEM</div>
-</div>
-</body></html>""", 403
+</div></body></html>""", 403
 
 # ── Main proxy ────────────────────────────────────────────────────────────────
 @app.route('/', defaults={'path': ''}, methods=['GET','POST','PUT','DELETE','PATCH'])
 @app.route('/<path:path>',            methods=['GET','POST','PUT','DELETE','PATCH'])
 def proxy(path):
-    global blocked_ips, attack_count
     ip = request.remote_addr
 
-    # 1. Already blocked?
+    # Reload from disk every request — admin unblock takes effect immediately
+    blocked_ips, attack_count = load_blocked()
+
+    # 1. Blocked IP?
     if ip in blocked_ips:
-        print(f'[BLOCKED IP] {ip} tried to access /{path}')
+        print(f'[BLOCKED IP] {ip} tried /{path}')
         return ip_blocked_page(ip)
 
-    # 2. Honeypot check — returns type string or None
+    # 2. Honeypot
     honeypot_type = is_honeypot('/' + path)
     if honeypot_type:
-        print(f'[{honeypot_type.upper()}] {ip} accessed /{path}')
+        print(f'[{honeypot_type.upper()}] {ip} hit /{path}')
         log_attack(ip, f'/{path}', 'Honeypot')
         attack_count[ip] = attack_count.get(ip, 0) + 1
-        if attack_count[ip] >= 3:
+        if attack_count[ip] >= 5:
             blocked_ips.add(ip)
         save_blocked(blocked_ips, attack_count)
         return honeypot_page(ip, '/' + path, honeypot_type)
 
-    # 3. General rate limit
+    # 3. Rate limit
     if check_rate(ip):
         log_attack(ip, request.url, 'Rate Limit / DoS')
-        return 'Too many requests — possible DoS attack detected.', 429
+        return 'Too many requests.', 429
 
-    # 4. Brute force detection on login route
+    # 4. Brute force
     if 'login' in path.lower() or 'login' in request.url.lower():
         if check_brute_force(ip):
             log_attack(ip, request.url, 'Brute Force')
             attack_count[ip] = attack_count.get(ip, 0) + 1
-            if attack_count[ip] >= 3:
+            if attack_count[ip] >= 5:
                 blocked_ips.add(ip)
             save_blocked(blocked_ips, attack_count)
             return blocked_page(ip, 'Brute Force', 'HIGH')
 
-    # 5. Payload attack detection
+    # 5. Payload detection
     payload = request.url + str(request.args) + str(request.data)
     attack_type = detect_attack(payload)
 
@@ -175,9 +164,9 @@ def proxy(path):
         severity = SEVERITY_MAP.get(attack_type, 'LOW')
         log_attack(ip, payload, attack_type)
         attack_count[ip] = attack_count.get(ip, 0) + 1
-        print(f'[ATTACK] {ip} — {attack_type} [{severity}] count: {attack_count[ip]}')
+        print(f'[ATTACK] {ip} — {attack_type} [{severity}] count:{attack_count[ip]}')
 
-        if attack_count[ip] >= 3:
+        if attack_count[ip] >= 5:
             blocked_ips.add(ip)
             save_blocked(blocked_ips, attack_count)
             return ip_blocked_page(ip)
@@ -188,17 +177,16 @@ def proxy(path):
     # 6. Clean — forward to backend
     url = f'{TARGET}/{path}'
     resp = requests.request(
-        method=request.method,
-        url=url,
+        method=request.method, url=url,
         params=request.args,
         headers={k: v for k, v in request.headers if k != 'Host'},
-        data=request.get_data(),
-        cookies=request.cookies,
+        data=request.get_data(), cookies=request.cookies,
         allow_redirects=False,
     )
-    excluded = {'content-encoding', 'content-length', 'transfer-encoding', 'connection'}
-    headers  = [(n, v) for n, v in resp.raw.headers.items() if n.lower() not in excluded]
+    excluded = {'content-encoding','content-length','transfer-encoding','connection'}
+    headers = [(n, v) for n, v in resp.raw.headers.items() if n.lower() not in excluded]
     return Response(resp.content, resp.status_code, headers)
 
 if __name__ == '__main__':
-    app.run(port=8080)
+    print('\n  WAF Proxy — Port 8080 | Block after 5 strikes\n')
+    app.run(port=8080, debug=False)
