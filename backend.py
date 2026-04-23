@@ -301,28 +301,7 @@ def home():
 .ps-val.cyan{color:var(--cyan);text-shadow:0 0 12px rgba(0,255,255,0.5);}
 .ps-label{font-size:8px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;}
 
-/* Radar — fixed behind hero text, in front of globe */
-.radar-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:560px;height:560px;z-index:3;pointer-events:none;opacity:0;
-  animation:fadeUp 1.2s ease 0.4s forwards;}
-.radar-bg .radar{width:560px;height:560px;border-radius:50%;
-  border:1px solid rgba(0,255,65,0.25);
-  background:radial-gradient(circle,rgba(0,255,65,0.04) 0%,transparent 65%);
-  position:relative;overflow:hidden;
-  box-shadow:0 0 80px rgba(0,255,65,0.1),inset 0 0 80px rgba(0,255,65,0.04);}
-.radar-bg .radar::before,.radar-bg .radar::after{content:"";position:absolute;
-  border:1px solid rgba(0,255,65,0.12);border-radius:50%;
-  top:50%;left:50%;transform:translate(-50%,-50%);}
-.radar-bg .radar::before{width:66%;height:66%;}
-.radar-bg .radar::after{width:33%;height:33%;}
-.r-cross-h{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(0,255,65,0.1);transform:translateY(-50%);}
-.r-cross-v{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(0,255,65,0.1);transform:translateX(-50%);}
-.sweep{position:absolute;top:50%;left:50%;width:50%;height:50%;
-  background:conic-gradient(from 0deg,transparent 72%,rgba(0,255,65,0.45) 100%);
-  transform-origin:0% 0%;animation:sweep-anim 4s linear infinite;}
-@keyframes sweep-anim{to{transform:rotate(360deg)}}
-.blip{position:absolute;border-radius:50%;opacity:0;animation:blip-anim 4s infinite;}
-@keyframes blip-anim{0%{opacity:0;transform:scale(0.5)}10%{opacity:1;transform:scale(1.5)}30%{opacity:0;transform:scale(1)}100%{opacity:0}}
+
 
 .quick-nav{position:relative;z-index:10;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
   background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
@@ -351,18 +330,6 @@ def home():
 <div id="globe-container"></div>
 <div class="scanlines"></div>
 <div class="overlay"></div>
-<!-- Radar behind text, in front of globe -->
-<div class="radar-bg">
-  <div class="radar">
-    <div class="r-cross-h"></div><div class="r-cross-v"></div>
-    <div class="sweep"></div>
-    <div class="blip" style="width:9px;height:9px;top:18%;left:30%;background:#ff0040;box-shadow:0 0 12px #ff0040;animation-delay:0s;"></div>
-    <div class="blip" style="width:8px;height:8px;top:72%;left:76%;background:#ff0040;box-shadow:0 0 12px #ff0040;animation-delay:1s;"></div>
-    <div class="blip" style="width:7px;height:7px;top:40%;left:65%;background:#ffaa00;box-shadow:0 0 10px #ffaa00;animation-delay:2.2s;"></div>
-    <div class="blip" style="width:6px;height:6px;top:80%;left:25%;background:#ff0040;box-shadow:0 0 10px #ff0040;animation-delay:3.1s;"></div>
-    <div class="blip" style="width:5px;height:5px;top:55%;left:82%;background:#ffaa00;box-shadow:0 0 8px #ffaa00;animation-delay:1.7s;"></div>
-  </div>
-</div>
 """ + nav('/') + """
 <section class="hero">
   <div class="hero-left">
@@ -435,32 +402,64 @@ def home():
 <script src="https://unpkg.com/three@0.152.0/build/three.min.js"></script>
 <script src="https://unpkg.com/globe.gl@2.27.2/dist/globe.gl.min.js"></script>
 <script>
-var N=35;
-var payloadTypes=['[SQLi]','[XSS]','[DDoS]','[CMD]','[RCE]','[Brute]','[Zero-Day]'];
-var arcsData=Array.from({length:N},function(){
-  return{startLat:(Math.random()-0.5)*180,startLng:(Math.random()-0.5)*360,
-    endLat:(Math.random()-0.5)*180,endLng:(Math.random()-0.5)*360,
-    color:[['#00ff41','#00ff41'],['#ff004c','#ff004c'],['#00e5ff','#00e5ff']][Math.floor(Math.random()*3)],
-    label:payloadTypes[Math.floor(Math.random()*payloadTypes.length)]};
+var N = 40;
+var payloadTypes = ['[PAYLOAD: DDoS]','[RANSOMWARE]','[Trojan]','[SQLi Exploit]','[Zero-Day]','[Data Breach]','[XSS Attack]','[Brute Force]','[CMD Inject]','[RCE]'];
+
+var arcsData = Array.from({length:N}, function() {
+  return {
+    startLat: (Math.random()-0.5)*180,
+    startLng: (Math.random()-0.5)*360,
+    endLat:   (Math.random()-0.5)*180,
+    endLng:   (Math.random()-0.5)*360,
+    color: [['#00ff41','#00ff41'],['#ff004c','#ff004c'],['#00e5ff','#00e5ff']][Math.floor(Math.random()*3)],
+    payloadText: payloadTypes[Math.floor(Math.random()*payloadTypes.length)]
+  };
 });
-var myGlobe=Globe()(document.getElementById('globe-container'))
+
+var myGlobe = Globe()(document.getElementById('globe-container'))
   .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-  .arcsData(arcsData).arcColor('color').arcStroke(0.6)
-  .arcDashLength(0.15).arcDashGap(1.5)
-  .arcDashInitialGap(function(){return Math.random();})
-  .arcDashAnimateTime(function(){return Math.random()*3000+2000;})
-  .labelsData(arcsData).labelLat('endLat').labelLng('endLng')
-  .labelText('label').labelSize(1.2).labelDotRadius(0.4)
-  .labelColor(function(){return '#ff004c';}).labelResolution(2)
-  .atmosphereColor('#00ff41').atmosphereAltitude(0.18)
+  .arcsData(arcsData)
+  .arcColor('color')
+  .arcStroke(0.6)
+  .arcAltitude(0.2)
+  .arcDashLength(0.15)
+  .arcDashGap(1.5)
+  .arcDashInitialGap(function(){ return Math.random()*1; })
+  .arcDashAnimateTime(function(){ return Math.random()*3000+2000; })
+  .labelsData(arcsData)
+  .labelLat('endLat')
+  .labelLng('endLng')
+  .labelText('payloadText')
+  .labelSize(1.5)
+  .labelDotRadius(0.5)
+  .labelColor(function(){ return '#ff004c'; })
+  .labelResolution(2)
+  .atmosphereColor('#00ff41')
+  .atmosphereAltitude(0.2)
   .backgroundColor('rgba(0,0,0,0)');
-myGlobe.controls().autoRotate=true;
-myGlobe.controls().autoRotateSpeed=0.8;
-myGlobe.controls().enableZoom=false;
-window.addEventListener('resize',function(){myGlobe.width(window.innerWidth);myGlobe.height(window.innerHeight);});
-var atkCount=__ATK_JS__;
-var el=document.getElementById('atk-count');
-if(el){setInterval(function(){if(Math.random()>0.7){atkCount++;el.textContent=atkCount;el.style.textShadow='0 0 20px #ff0040';setTimeout(function(){el.style.textShadow='0 0 12px rgba(255,0,64,0.5)';},200);}},1800);}
+
+myGlobe.controls().autoRotate = true;
+myGlobe.controls().autoRotateSpeed = 1.0;
+myGlobe.controls().enableZoom = false;
+
+window.addEventListener('resize', function(){
+  myGlobe.width(window.innerWidth);
+  myGlobe.height(window.innerHeight);
+});
+
+// Animate attack counter
+var atkCount = __ATK_JS__;
+var el = document.getElementById('atk-count');
+if (el) {
+  setInterval(function() {
+    if (Math.random() > 0.7) {
+      atkCount++;
+      el.textContent = atkCount;
+      el.style.textShadow = '0 0 20px #ff0040';
+      setTimeout(function() { el.style.textShadow = '0 0 12px rgba(255,0,64,0.5)'; }, 200);
+    }
+  }, 1800);
+}
 </script>
 </body></html>"""
 
@@ -889,7 +888,7 @@ async function fireAll(){
     await sleep(600);
   }
   log('','r-info');
-  log('[COMPLETE] All '+attacks.length+' attacks fired - check /dashboard','r-ok');
+  log('[COMPLETE] All '+attacks.length+' attacks fired','r-ok');
 }
 </script>
 </body></html>""")
